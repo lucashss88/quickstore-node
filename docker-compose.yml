@@ -1,0 +1,41 @@
+services:
+  # Serviço do Banco de Dados PostgreSQL
+  database:
+    image: postgres:13-alpine # Imagem oficial do PostgreSQL, versão 13, com base Alpine (mais leve)
+    environment:
+      # Variáveis de ambiente para configurar o PostgreSQL dentro do contêiner
+      # Estas serão lidas pelo seu backend através das variáveis de ambiente
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    env_file:
+      - ./.env # AGORA, o serviço 'database' também lerá suas variáveis do arquivo .env
+    ports:
+      # Mapeia a porta do contêiner (5432) para uma porta na sua máquina host (5432).
+      - "5432:5432"
+    volumes:
+      # Define um volume persistente para os dados do banco de dados.
+      - db_data:/var/lib/postgresql/data
+    healthcheck: # Verifica se o banco de dados está pronto para aceitar conexões
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"] # Usando as variáveis do .env
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Serviço do Backend da sua aplicação QuickStore
+  backend:
+    build: . # Indica ao Docker Compose para construir a imagem a partir do Dockerfile no diretório atual
+             # Se seu Dockerfile estiver em uma subpasta (ex: ./backend), mude para 'build: ./backend'
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: database # O nome do serviço no Docker Compose se torna o hostname
+    env_file:
+      - ./.env # Carrega as variáveis de ambiente do seu arquivo .env para o contêiner do backend.
+    depends_on:
+      database:
+        condition: service_healthy
+
+# Seção para definir volumes nomeados para persistência de dados.
+volumes:
+  db_data:

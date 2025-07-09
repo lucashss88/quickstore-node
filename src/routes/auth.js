@@ -1,18 +1,19 @@
 const express = require('express');
 require('dotenv').config();
 const AuthService = require("../services/authService");
+const {authorize} = require("./middleware/auth");
 const router = express.Router();
 
 
 router.post('/registrar', async (req, res) => {
     try {
-        const { email, password, nome } = req.body;
-        if (!req.body || !email || !password) {
+        const { email, senha, nome, role } = req.body;
+        if (!req.body || !email || !senha) {
             return res.status(400).json({
-                error: 'Requisição inválida. Certifique-se de enviar email, password e nome no corpo da requisição.',
+                error: 'Requisição inválida. Certifique-se de enviar email, senha e nome no corpo da requisição.',
             });
         }
-        const result = await AuthService.registrar(email, password, nome);
+        const result = await AuthService.registrar(email, senha, nome, role);
         res.json(result);
     } catch (err) {
         res.status(err.statusCode || 500).json({ msg: err.message });
@@ -22,13 +23,13 @@ router.post('/registrar', async (req, res) => {
 // Login de usuário
 router.post('/login', async (req, res) => {
     try{
-        const { email, password } = req.body;
-        if (!req.body || !email || !password) {
+        const { email, senha } = req.body;
+        if (!req.body || !email || !senha) {
             return res.status(400).json({
-                error: 'Requisição inválida. Certifique-se de enviar email e password no corpo da requisição.',
+                error: 'Requisição inválida. Certifique-se de enviar email e senha no corpo da requisição.',
             });
         }
-        const result = await AuthService.login(email, password);
+        const result = await AuthService.login(email, senha);
         res.json(result);
     } catch(err) {
         res.status(err.statusCode || 500).send({msg: err.message});
@@ -37,6 +38,10 @@ router.post('/login', async (req, res) => {
 
 router.post('/logout', (req, res) => {
     return res.status(200).json({ msg: 'Sessão encerrada no cliente!' });
+});
+
+router.post('/admin/criar-usuario', authorize(['admin']), async (req, res) => {
+
 });
 
 module.exports = router;

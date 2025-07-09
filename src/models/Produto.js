@@ -44,10 +44,10 @@ const Produto = sequelize.define('Produto', {
         },
     },
     descricao: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
     },
     imagemUrl: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         field: 'imagem_url',
     },
 }, {

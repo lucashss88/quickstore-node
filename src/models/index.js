@@ -18,8 +18,8 @@ Carrinho.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'usuario' });
 Pedido.hasMany(ItemPedido, { foreignKey: 'pedidoId', as: 'itens', onDelete: 'CASCADE' });
 ItemPedido.belongsTo(Pedido, { foreignKey: 'pedidoId' });
 
-Produto.hasMany(ItemPedido, { foreignKey: 'produtoId', as: 'itens'});
-ItemPedido.belongsTo(Produto, { foreignKey: 'produtoId',});
+Produto.hasMany(ItemPedido, { foreignKey: 'produtoId'});
+ItemPedido.belongsTo(Produto, { foreignKey: 'produtoId', as: 'produto'});
 
 Usuario.hasMany(Pedido, { foreignKey: 'usuarioId' });
 Pedido.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'usuario' });

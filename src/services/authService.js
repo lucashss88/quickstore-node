@@ -5,7 +5,7 @@ const SequelizeUserRepository = require("../repositories/usuario/sequelizeUsuari
 class AuthService {
     static usuarioRepository = new SequelizeUserRepository();
 
-    static async login(email, password) {
+    static async login(email, senha) {
         let user = await this.usuarioRepository.buscarUsuarioPorEmail(email);
         if (!user) {
             const error = new Error('User not found');
@@ -13,7 +13,7 @@ class AuthService {
             throw error;
         }
 
-        const isMatch = await bcrypt.compare(password, user.senha);
+        const isMatch = await bcrypt.compare(senha, user.senha);
         if (!isMatch) {
             const error = new Error('Invalid credentials. Please try again.');
             error.statusCode = 400;
@@ -22,7 +22,7 @@ class AuthService {
 
         const payload = {
             id: user.id,
-            // role: user.role
+            role: user.role
         };
         return new Promise((resolve, reject) => {
             jwt.sign(
@@ -37,7 +37,7 @@ class AuthService {
                             user: {
                                 id: user.id,
                                 email: user.email,
-                                // role: user.role
+                                role: user.role
                             },
                             message: 'User logged in successfully'
                         });
@@ -50,7 +50,7 @@ class AuthService {
         });
     }
 
-    static async registrar(email, senha, nome) {
+    static async registrar(email, senha, nome, role) {
         let user = await this.usuarioRepository.buscarUsuarioPorEmail(email);
         if (user) {
             const error = new Error('User already exists');
@@ -70,11 +70,11 @@ class AuthService {
             throw error;
         }
 
-        user = await this.usuarioRepository.criar(email, senha, nome);
+        user = await this.usuarioRepository.criar(email, senha, nome, role);
 
         const payload = {
             id: user.id,
-            //role: user.role,
+            role: user.role,
         };
 
         return new Promise((resolve, reject) => {
@@ -90,7 +90,7 @@ class AuthService {
                             user: {
                                 id: user.id,
                                 email: user.email,
-                                //role: user.role
+                                role: user.role
                             },
                             message: 'User registered successfully'
                         });

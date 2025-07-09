@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const {auth} = require('./middleware/auth');
+const {auth, authorize} = require('./middleware/auth');
 const carrinhoService = require('../services/carrinhoService');
 const carrinhoCalculoService = require('../services/carrinhoCalculoService');
 const itemCarrinhoService = require('../services/itemCarrinhoService');
 
 router.use(auth);
 
-router.get('/meu-carrinho', async (req, res) => {
+router.get('/meu-carrinho', authorize('usuario'), async (req, res) => {
     try{
         const carrinho = await carrinhoService.buscarCarrinhoPorId(req.user.id);
         const items = await itemCarrinhoService.listarTodos(carrinho.id);
@@ -20,7 +20,7 @@ router.get('/meu-carrinho', async (req, res) => {
     }
 });
 
-router.post('/meu-carrinho/items', async (req, res) => {
+router.post('/meu-carrinho/items', authorize('usuario'), async (req, res) => {
     try{
         const {produtoId, quantidade} = req.body;
         const carrinho = await carrinhoService.adicionarProdutoAoCarrinho(req.user.id, produtoId, quantidade);
@@ -30,7 +30,7 @@ router.post('/meu-carrinho/items', async (req, res) => {
     }
 });
 
-router.put('/meu-carrinho/items/:produtoId', async (req, res) => {
+router.put('/meu-carrinho/items/:produtoId', authorize('usuario'), async (req, res) => {
     const {produtoId} = req.params;
     const {quantidade} = req.body;
 
@@ -68,7 +68,7 @@ router.put('/meu-carrinho/items/:produtoId', async (req, res) => {
     }
 });
 
-router.delete('/meu-carrinho/items/:produtoId', async (req, res) => {
+router.delete('/meu-carrinho/items/:produtoId', authorize('usuario'), async (req, res) => {
     const {produtoId} = req.params;
     const usuarioId = req.user.id;
     await carrinhoService.removerProdutoDoCarrinho(usuarioId, produtoId);

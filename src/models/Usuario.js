@@ -21,10 +21,11 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    // role: {
-    //     type: DataTypes.STRING,
-    //     defaultValue: 'admin',
-    // },
+    role: {
+        type: DataTypes.ENUM('admin', 'usuario'),
+        allowNull: false,
+        defaultValue: 'usuario',
+    },
 }, {
     tableName: 'tb_usuario',
     timestamps: true,

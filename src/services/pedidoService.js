@@ -26,11 +26,32 @@ class PedidoService {
         }
     }
 
+    static async listarPedidosPorId(pedidoId) {
+        try{
+            return await this.pedidoRepository.listarPorId(pedidoId);
+        } catch(err) {
+            console.error(err);
+        }
+    }
+
+    static async listarPedidosByAdmin(){
+        try {
+            return await this.pedidoRepository.listarPedidosByAdmin();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     static async aceitarPedido(pedidoId, usuarioId) {
         try {
+            if (!usuarioId) {
+                throw new Error('Usuário não autenticado ou ID de usuário não fornecido.');
+            }
+            console.log("Usuário autenticado no serviço:", usuarioId);
             return await this.pedidoRepository.aceitar(pedidoId, usuarioId);
         } catch (err) {
-            console.error(err);
+            console.error("Erro ao aceitar o pedido (ID: ", pedidoId, "): ", err.message);
+            throw new Error('Erro ao aceitar o pedido. Verifique se o ID ou Status estão corretos.');
         }
     }
 
@@ -58,9 +79,9 @@ class PedidoService {
         }
     }
 
-    static async pagarPedido(pedidoId, usuarioId) {
+    static async pagarPedido(pedidoId, usuarioId, numeroCartao) {
         try {
-            return await this.pedidoRepository.pagar(pedidoId, usuarioId);
+            return await this.pedidoRepository.pagar(pedidoId, usuarioId, numeroCartao);
         } catch (err) {
             console.error(err);
         }

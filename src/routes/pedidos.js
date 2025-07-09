@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const {auth} = require('./middleware/auth');
+const {auth, authorize} = require('./middleware/auth');
 const pedidoService = require('../services/pedidoService');
 
 router.use(auth);
 
-router.post('/', async (req, res) => {
+router.post('/', authorize('usuario'), async (req, res) => {
     try {
         const pedido = await pedidoService.criarPedido(req.user.id);
         res.status(201).json(pedido);
@@ -15,7 +15,16 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.get('/', async (req, res) => {
+router.get('/admin', authorize('admin'), async (req, res) => {
+    try {
+        const pedidos = await pedidoService.listarPedidosByAdmin();
+        res.json(pedidos);
+    } catch (err) {
+        res.status(500).json({ error: 'Erro ao listar pedidos por administrador' });
+    }
+});
+
+router.get('/', authorize('usuario'), async (req, res) => {
     try {
         const pedidos = await pedidoService.listarPedidos(req.user.id);
         res.json(pedidos);
@@ -24,46 +33,71 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.post('/:id/aceitar', async (req, res) => {
+router.get('/:id', authorize('usuario'), async (req, res) => {
     try {
-        const pedido = await pedidoService.aceitarPedido(req.params.id, req.user.id);
+        const pedidoId = req.params.id;
+        const pedido = await pedidoService.listarPedidosPorId(pedidoId);
         res.json(pedido);
+    } catch (err) {
+        res.status(500).json({ error: 'Erro ao listar pedidos' });
+    }
+});
+
+//ACEITAR
+router.post('/:id/aceitar', authorize('admin'), async (req, res) => {
+    try {
+        const usuarioId = parseInt(req.user.id);
+        console.log(`Usuário autenticado: ${usuarioId}`);
+        const pedido = await pedidoService.aceitarPedido(req.params.id, usuarioId);
+        res.status(200).json({ message: 'Pedido aceito com sucesso!', pedido });
     } catch (err) {
         res.status(500).json({ error: 'Erro ao aceitar pedido' });
     }
 })
 
-router.post('/:id/finalizar', async (req, res) => {
+//FINALIZAR
+router.post('/:id/finalizar', authorize('admin'), async (req, res) => {
     try {
-        const pedido = await pedidoService.finalizarPedido(req.params.id, req.user.id);
-        res.json(pedido);
+        const usuarioId = req.user.id;
+        const pedido = await pedidoService.finalizarPedido(req.params.id, usuarioId);
+        res.status(200).json({ message: 'Pedido finalizado com sucesso!', pedido });
     } catch (err) {
         res.status(500).json({ error: 'Erro ao aceitar pedido' });
     }
 })
 
-router.post('/:id/pagar', async (req, res) => {
+//PAGAR
+router.post('/:id/pagar', authorize('usuario'), async (req, res) => {
     try {
-        const pedido = await pedidoService.pagarPedido(req.params.id, req.user.id);
-        res.json(pedido);
+        const { numeroCartao } = req.body; // Certifique-se de que este dado está vindo no frontend
+        if (!numeroCartao) {
+            return res.status(400).json({ error: 'Número do Cartão é obrigatório.' });
+        }
+        const usuarioId = req.user.id;
+        const pedido = await pedidoService.pagarPedido(req.params.id, usuarioId, numeroCartao);
+        res.status(200).json({message: 'Pedido pago com sucesso!', pedido});
     } catch (err) {
         res.status(500).json({ error: 'Erro ao aceitar pedido' });
     }
 })
 
-router.post('/:id/enviar', async (req, res) => {
+//ENVIAR
+router.post('/:id/enviar', authorize('admin'), async (req, res) => {
     try {
-        const pedido = await pedidoService.enviarPedido(req.params.id, req.user.id);
-        res.json(pedido);
+        const usuarioId = parseInt(req.user.id);
+        const pedido = await pedidoService.enviarPedido(req.params.id, usuarioId);
+        res.status(200).json({message: 'Pedido enviado com sucesso!', pedido});
     } catch (err) {
         res.status(500).json({ error: 'Erro ao aceitar pedido' });
     }
 })
 
-router.post('/:id/cancelar', async (req, res) => {
+//CANCELAR
+router.post('/:id/cancelar', authorize(['admin', 'usuario']), async (req, res) => {
     try {
-        const pedido = await pedidoService.cancelarPedido(req.params.id, req.user.id);
-        res.json(pedido);
+        const usuarioId = req.user.id;
+        const pedido = await pedidoService.cancelarPedido(req.params.id, usuarioId);
+        res.status(200).json({message: 'Pedido cancelado com sucesso!', pedido});
     } catch (err) {
         res.status(500).json({ error: 'Erro ao aceitar pedido' });
     }

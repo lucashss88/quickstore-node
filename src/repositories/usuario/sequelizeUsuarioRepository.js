@@ -8,11 +8,12 @@ class SequelizeUsuarioRepository extends IUsuarioRepository{
      async buscarUsuarioPorId(id){
         return await Usuario.findByPk(id);
      }
-     async criar(email, senha, nome){
+     async criar(email, senha, nome, role){
          const novoUsuario = new Usuario({
              email,
              senha,
              nome,
+             role
          })
          return await novoUsuario.save();
      }

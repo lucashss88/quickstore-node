@@ -3,6 +3,7 @@ const ProdutoService = require('../services/ProdutoService');
 const multer = require('multer');
 const path = require('path');
 const fs = require("node:fs");
+const {authorize, auth} = require("./middleware/auth");
 
 const router = express.Router();
 
@@ -22,7 +23,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-router.get('/', async (req, res) => {
+router.get('/', auth, authorize(['admin', 'usuario']), async (req, res) => {
     try {
         const produtos = await ProdutoService.listarTodos();
         res.json(produtos);
@@ -31,7 +32,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, authorize(['admin', 'usuario']), async (req, res) => {
     try {
         const produto = await ProdutoService.buscarPorId(req.params.id);
         if (!produto) {
@@ -43,7 +44,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', auth, authorize('admin'), async (req, res) => {
     try {
         const produto = await ProdutoService.criar(req.body);
         res.status(201).json(produto);
@@ -52,7 +53,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, authorize('admin'), async (req, res) => {
     try {
         const produto = await ProdutoService.atualizar(req.params.id, req.body);
         res.json(produto);
@@ -61,7 +62,7 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, authorize('admin'), async (req, res) => {
     try {
         await ProdutoService.deletar(req.params.id);
         res.status(204).send();
@@ -70,7 +71,7 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-router.post('/upload', upload.single('imagem'), (req, res) => {
+router.post('/upload', auth, authorize(['admin']), upload.single('imagem'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'Nenhuma imagem enviada' });
     }

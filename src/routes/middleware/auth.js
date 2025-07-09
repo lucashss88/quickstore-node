@@ -9,15 +9,26 @@ function auth(req, res, next) {
         req.user = jwt.verify(token, process.env.JWT_SECRET);
         next();
     } catch (err) {
-        res.status(401).json({ msg: 'Token is not valid' });
+        console.error("Erro ao autenticar usuário:", err.message);
+        res.status(401).json({ error: 'Token inválido ou expirado.' });
+
     }
 }
 
-function authorize(role) {
+function authorize(roles = []) {
+    if (typeof roles === 'string') {
+        roles = [roles];
+    }
+
     return (req, res, next) => {
-        if (req.user.role !== role) {
-            return res.status(403).json({ msg: 'Permission denied' });
+        if (!req.user || !req.user.role) {
+            return res.status(401).json({ msg: 'Autenticação necessária.' });
         }
+
+        if (roles.length && !roles.includes(req.user.role)) {
+            return res.status(403).json({ msg: 'Acesso negado. Permissões insuficientes.' });
+        }
+
         next();
     };
 }

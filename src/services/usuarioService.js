@@ -3,8 +3,8 @@ const SequelizeUsuarioRepository = require("../repositories/usuario/sequelizeUsu
 class UsuarioService {
     static usuarioRepository = new SequelizeUsuarioRepository();
 
-    static async atualizar(email, usuario){
-        return await this.usuarioRepository.atualizar(email, usuario);
+    static async atualizar(id, nome, email){
+        return await this.usuarioRepository.atualizar(id, nome, email);
     }
 
     static async buscarPorEmail(email){

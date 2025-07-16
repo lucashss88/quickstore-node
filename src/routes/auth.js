@@ -7,12 +7,13 @@ const router = express.Router();
 
 router.post('/registrar', async (req, res) => {
     try {
-        const { email, senha, nome, role } = req.body;
+        const { email, senha, nome } = req.body;
         if (!req.body || !email || !senha) {
             return res.status(400).json({
                 error: 'Requisição inválida. Certifique-se de enviar email, senha e nome no corpo da requisição.',
             });
         }
+        const role = 'usuario';
         const result = await AuthService.registrar(email, senha, nome, role);
         res.json(result);
     } catch (err) {
@@ -38,10 +39,6 @@ router.post('/login', async (req, res) => {
 
 router.post('/logout', (req, res) => {
     return res.status(200).json({ msg: 'Sessão encerrada no cliente!' });
-});
-
-router.post('/admin/criar-usuario', authorize(['admin']), async (req, res) => {
-
 });
 
 module.exports = router;

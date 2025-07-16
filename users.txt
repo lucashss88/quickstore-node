@@ -1,0 +1,13 @@
+//Admin
+admin@admin
+admin123
+
+lucas@admin.com
+admin321
+
+//Users
+lucas@teste.com
+123456
+
+joao@gmail.com
+123321

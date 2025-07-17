@@ -38,6 +38,11 @@ router.get('/:id', auth, authorize(['admin', 'usuario']), async (req, res) => {
         if (!produto) {
             return res.status(404).json({ error: 'Produto não encontrado' });
         }
+
+        if (produto.imagemUrl) {
+            produto.imagemUrl = path.join('/uploads', produto.imagemUrl).replace(/\\/g, '/');
+        }
+
         res.json(produto);
     } catch (err) {
         res.status(500).json({ err: 'Erro ao buscar produto' });
@@ -55,7 +60,9 @@ router.post('/', auth, authorize('admin'), async (req, res) => {
 
 router.put('/:id', auth, authorize('admin'), async (req, res) => {
     try {
-        const produto = await ProdutoService.atualizar(req.params.id, req.body);
+        const pedidoId = req.params.id;
+        const pedido = req.body;
+        const produto = await ProdutoService.atualizar(pedidoId, pedido);
         res.json(produto);
     } catch (err) {
         res.status(400).json({ err: 'Erro ao atualizar produto' });

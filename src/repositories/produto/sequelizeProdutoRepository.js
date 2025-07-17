@@ -1,24 +1,30 @@
 const {Produto} = require("../../models");
 const IProdutoRepository = require("./interfaceProdutoRepository");
 
-class SequelizeProdutoRepository extends IProdutoRepository{
-    async listarTodos(){
+class SequelizeProdutoRepository extends IProdutoRepository {
+    async listarTodos() {
         return await Produto.findAll();
     }
-    async buscarProdutoPorId(produtoId){
-        return await Produto.findByPk(produtoId);
+
+    async buscarProdutoPorId(produtoId) {
+        return await Produto.findByPk(produtoId, {
+            attributes: ['id', 'nome', 'preco', 'estoque', 'descricao', 'imagemUrl'],
+        });
     }
-    async criar(produto){
+
+    async criar(produto) {
         return Produto.create(produto);
     }
-    async atualizar(id, produto){
+
+    async atualizar(id, produto) {
         const produtoAtualizado = await this.buscarProdutoPorId(id);
         if (!produtoAtualizado) {
             throw new Error("Produto não encontrado");
         }
         return await produtoAtualizado.update(produto);
     }
-    async deletar(id){
+
+    async deletar(id) {
         const produtoDeletado = await Produto.findByPk(id);
         if (!produtoDeletado) {
             throw new Error("Produto não encontrado");

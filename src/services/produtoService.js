@@ -16,10 +16,16 @@ class ProdutoService {
     }
 
     static async criar(produto) {
+        if (produto.imagemUrl) {
+            produto.imagemUrl = produto.imagemUrl.replace(/\\/g, '/');
+        }
         return this.produtoRepository.criar(produto);
     }
 
     static async atualizar(id, produto) {
+        if (produto.imagemUrl) {
+            produto.imagemUrl = produto.imagemUrl.replace(/\\/g, '/');
+        }
         return await this.produtoRepository.atualizar(id, produto);
     }
 

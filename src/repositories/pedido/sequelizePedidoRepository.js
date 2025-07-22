@@ -221,6 +221,30 @@ class SequelizePedidoRepository extends IPedidoRepository {
             throw error;
         }
     }
+
+    async listarVendasTotais() {
+        try {
+            const pedidos = await Pedido.findAll({
+                // include: [
+                //     {model: Usuario, as: 'usuario'},
+                //     {model: ItemPedido, as: 'itens', include: [{
+                //             model: Produto,
+                //             as: 'produto',
+                //         }]
+                //     }
+                // ],
+                where: {status: 'ENTREGUE'},
+            });
+            let vendas = 0;
+            for (const pedido of pedidos) {
+                vendas += pedido.valorTotal;
+            }
+            return vendas;
+        } catch (error) {
+            console.error("Erro ao listar pedidos por administrador:", error);
+            throw error;
+        }
+    }
 }
 
 module.exports = SequelizePedidoRepository;

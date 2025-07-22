@@ -42,6 +42,14 @@ class PedidoService {
         }
     }
 
+    static async listarVendasTotais(){
+        try {
+            return await this.pedidoRepository.listarVendasTotais();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     static async aceitarPedido(pedidoId, usuarioId) {
         try {
             if (!usuarioId) {

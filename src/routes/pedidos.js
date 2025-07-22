@@ -24,6 +24,15 @@ router.get('/admin', authorize('admin'), async (req, res) => {
     }
 });
 
+router.get('/admin/vendas', authorize('admin'), async (req, res) => {
+    try {
+        const vendas = await pedidoService.listarVendasTotais();
+        res.json(vendas);
+    } catch (err) {
+        res.status(500).json({ error: 'Erro ao listar pedidos por administrador' });
+    }
+});
+
 router.get('/', authorize('usuario'), async (req, res) => {
     try {
         const pedidos = await pedidoService.listarPedidos(req.user.id);

@@ -14,6 +14,10 @@ class UsuarioService {
     static async buscarPorId(id){
         return await this.usuarioRepository.buscarUsuarioPorId(id);
     }
+
+    static async todosUsuarios(){
+        return await this.usuarioRepository.buscarUsuarios();
+    }
 }
 
 module.exports = UsuarioService;

@@ -52,4 +52,13 @@ router.post('/admin/criar-admin', auth, authorize(['admin']), async (req, res) =
     }
 });
 
+router.get('/admin/usuarios', auth, authorize(['admin']), async (req, res) => {
+    try {
+        const usuarios = await usuarioService.todosUsuarios();
+        res.json(usuarios);
+    } catch (err) {
+        res.status(err.statusCode || 500).json({ msg: err.message });
+    }
+});
+
 module.exports = router;

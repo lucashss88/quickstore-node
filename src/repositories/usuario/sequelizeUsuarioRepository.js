@@ -36,6 +36,11 @@ class SequelizeUsuarioRepository extends IUsuarioRepository{
         return await usuarioEncontrado.destroy();
      }
 
+     async buscarUsuarios(){
+        return await Usuario.findAll({
+            where: {role: 'usuario'}
+        });
+     }
 }
 
 module.exports = SequelizeUsuarioRepository;

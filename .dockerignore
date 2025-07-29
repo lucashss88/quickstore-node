@@ -1,0 +1,9 @@
+# Ignora as dependências locais, pois o Docker vai instalar as suas próprias
+node_modules
+
+# Ignora o arquivo de variáveis de ambiente locais
+.env
+
+# Ignora logs e outros arquivos de sistema
+npm-debug.log
+.DS_Store

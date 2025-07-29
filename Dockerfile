@@ -1,26 +1,40 @@
-## Use uma imagem base oficial do Node.js
-## 'alpine' é uma versão mais leve do Linux, ideal para contêineres
-#FROM node:18-alpine
-#
-## Defina o diretório de trabalho dentro do contêiner
-#WORKDIR /app
-#
-## Copie package.json e package-lock.json (ou yarn.lock) primeiro.
-## Isso aproveita o cache do Docker. Se suas dependências não mudarem,
-## esta camada não será reconstruída em builds futuras, tornando-as mais rápidas.
-#COPY package*.json ./
-#
-## Instale as dependências do projeto
-#RUN npm install
-#
-## Copie o restante do código da aplicação para o diretório de trabalho do contêiner
-## O ponto '.' refere-se ao diretório atual na sua máquina host.
-#COPY . .
-#
-## Exponha a porta em que sua aplicação Express está escutando.
-## Esta porta é interna ao contêiner. O mapeamento para a sua máquina host será feito no docker-compose.yml.
-#EXPOSE 3000
-#
-## Comando para iniciar a aplicação quando o contêiner for executado.
-## Certifique-se de que 'server.js' é o ponto de entrada principal do seu servidor.
-#CMD ["node", "server.js"]
+# --- Estágio 1: Builder ---
+# Usamos uma imagem Node.js completa para instalar as dependências
+FROM node:18-alpine AS builder
+
+# Define o diretório de trabalho dentro do container
+WORKDIR /app
+
+# Copia os arquivos de manifesto de pacotes
+COPY package.json package-lock.json ./
+
+# Instala TODAS as dependências, incluindo as de desenvolvimento (caso precise de build steps)
+RUN npm install
+
+# Copia o resto do código da sua aplicação
+COPY . .
+
+# --- Estágio 2: Production ---
+# Usamos uma imagem Node.js mais enxuta para a versão final
+FROM node:18-alpine
+
+# Define o ambiente como "produção"
+ENV NODE_ENV=production
+
+# Define o diretório de trabalho
+WORKDIR /app
+
+# Copia os arquivos de manifesto novamente
+COPY package.json package-lock.json ./
+
+# Instala APENAS as dependências de produção (mais leve e seguro)
+RUN npm install --omit=dev
+
+# Copia o código da aplicação do estágio anterior
+COPY --from=builder /app .
+
+# Expõe a porta que a aplicação vai usar (Render define isso como 10000)
+EXPOSE 10000
+
+# O comando para iniciar a sua aplicação quando o container rodar
+CMD ["node", "server.js"]

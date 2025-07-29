@@ -1,5 +1,5 @@
 const express = require('express');
-const ProdutoService = require('../services/ProdutoService');
+const ProdutoService = require('../services/produtoService');
 const multer = require('multer');
 const path = require('path');
 const fs = require("node:fs");
